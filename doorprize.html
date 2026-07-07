@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Undian Doorprize - HUT Lion Group</title>
+<style>
+  :root{
+    --bg: #1a0606;
+    --panel: #2a0d0d;
+    --panel-2: #3a1414;
+    --border: #5c2020;
+    --accent: #f5c451;
+    --accent-soft: #ffdd8a;
+    --accent-2: #22c55e;
+    --danger: #ef4444;
+    --text: #fdf3e0;
+    --muted: #cba784;
+    --radius: 10px;
+    --maroon-deep: #12040a;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(circle at 15% -10%, #4a1414 0%, transparent 45%),
+      radial-gradient(circle at 100% 0%, #3a1010 0%, transparent 40%),
+      linear-gradient(180deg, var(--maroon-deep), var(--bg) 60%);
+    color: var(--text); min-height:100vh; padding: 24px;
+  }
+  .header-wrap{
+    display:flex; align-items:center; gap:14px; margin-bottom: 4px; flex-wrap:wrap;
+  }
+  .header-wrap h1{ font-size: 26px; margin:0; }
+  .hut-badge{
+    background: linear-gradient(135deg, var(--accent), #d99a2b);
+    color:#3a1414; font-weight:800; font-size:12px; padding:5px 12px; border-radius:999px;
+    letter-spacing:.04em; box-shadow: 0 0 0 1px rgba(0,0,0,.2) inset;
+  }
+  .subtitle{ color: var(--muted); margin-bottom: 20px; font-size: 14px;}
+  .grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  @media(max-width: 900px){ .grid{ grid-template-columns: 1fr; } }
+  .card{
+    background: var(--panel); border:1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 20px; margin-bottom: 20px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.25);
+  }
+  .card h2{ font-size: 16px; margin:0 0 12px 0; display:flex; align-items:center; gap:8px; color: var(--accent-soft);}
+  .step-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:50%; background:var(--accent); color:#2a0d0d;
+    font-size:12px; font-weight:700;
+  }
+  label{ display:block; font-size:13px; color: var(--muted); margin: 10px 0 4px; }
+  input[type=text], input[type=number], textarea, select{
+    width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font-size:14px;
+  }
+  textarea{ min-height: 90px; resize: vertical; font-family: monospace; font-size:13px;}
+  input[type=file]{ color: var(--muted); font-size: 13px;}
+  button{
+    cursor:pointer; border:none; border-radius:8px; padding:9px 16px; font-size:14px;
+    font-weight:600; transition:.15s transform ease, .15s opacity ease;
+  }
+  button:hover{ transform: translateY(-1px); }
+  button:active{ transform: translateY(0); }
+  button:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+  .btn-primary{ background: linear-gradient(135deg, var(--accent), #d99a2b); color:#2a0d0d; }
+  .btn-secondary{ background: var(--panel-2); color: var(--text); border:1px solid var(--border); }
+  .btn-success{ background: var(--accent-2); color:#06210f; }
+  .btn-danger{ background: var(--danger); color:#fff; }
+  .btn-stage{ background: #7a1f2b; color: #fff; border:1px solid #a13341; }
+  .row{ display:flex; gap:8px; align-items:flex-end; flex-wrap: wrap;}
+  .row > div{ flex:1; min-width: 120px; }
+  table{ width:100%; border-collapse: collapse; font-size:13px; margin-top:10px;}
+  th, td{ padding:7px 8px; border-bottom:1px solid var(--border); text-align:left;}
+  th{ color: var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em;}
+  .pill{
+    display:inline-block; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700;
+  }
+  .pill-ok{ background: rgba(34,197,94,.15); color:#4ade80; }
+  .pill-warn{ background: rgba(245,196,81,.15); color: var(--accent); }
+  .stat-row{ display:flex; gap:14px; margin-top: 10px; flex-wrap:wrap;}
+  .stat{
+    background: var(--panel-2); border:1px solid var(--border); border-radius:8px;
+    padding:10px 16px; flex:1; min-width:110px; text-align:center;
+  }
+  .stat b{ display:block; font-size:22px; color: var(--accent);}
+  .stat span{ font-size:11px; color:var(--muted); }
+
+  /* ---- Draw stage card ---- */
+  #stageCard{ position:relative; }
+  .stage-toolbar{ display:flex; justify-content:flex-end; margin-bottom:4px; }
+  .draw-stage{
+    text-align:center; padding: 30px 10px;
+  }
+  .prize-current{ font-size:14px; color: var(--accent-soft); margin-bottom: 4px; letter-spacing:.03em;}
+  /* ID ditampilkan sebagai kotak per-digit, jumlah kotak menyesuaikan panjang ID asli (6 atau 8 digit) */
+  .id-boxes{
+    display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap;
+    margin: 14px 0; min-height: 70px;
+  }
+  .id-box{
+    width:44px; height:56px; display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--border); border-radius:8px; background: var(--panel-2);
+    font-family:'Consolas', monospace; font-size: 30px; font-weight:800; color: var(--accent-soft);
+  }
+  .id-box.winner{ border-color: var(--accent); color: var(--accent); background: rgba(245,196,81,.08); }
+  .name-display{ font-size:22px; font-weight:700; min-height: 30px; margin-bottom: 2px;}
+  .cluster-display{ font-size:15px; color: var(--accent-soft); min-height: 20px; margin-bottom: 2px; }
+  .job-display{ font-size:12px; color: var(--muted); min-height: 16px; margin-bottom: 10px; }
+  .action-row{ display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;}
+  .small{ font-size:12px; color:var(--muted); }
+  .empty{ color: var(--muted); font-size:13px; padding: 10px 0;}
+  .tag-del{ cursor:pointer; color: var(--danger); font-size:12px; font-weight:700;}
+  .flex-between{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  ul.tips{ margin:0; padding-left: 18px; font-size:13px; color: var(--muted); line-height:1.7;}
+  .footer-note{ text-align:center; color:var(--muted); font-size:12px; margin-top:20px;}
+
+  /* ---- Fullscreen stage / panggung mode (background Lucky Draw HUT Lion Group) ---- */
+  .stage-bg-img{ display:none; }
+  #stageCard:fullscreen{
+    background:#fff;
+    display:flex; align-items:center; justify-content:center; padding: 0;
+    border:none;
+  }
+  /* Kotak 2:1 yang menjaga proporsi background persis seperti gambar asli (6250x3125),
+     otomatis di-tengah-kan baik landscape maupun proyektor beda rasio */
+  #stageCard:fullscreen .stage-inner{
+    position:relative; width:min(100vw, 200vh); aspect-ratio:2/1; max-width:100vw; max-height:100vh;
+    text-align:center; padding:0; margin:auto;
+  }
+  #stageCard:fullscreen .stage-bg-img{
+    display:block; position:absolute; inset:0; width:100%; height:100%; object-fit:contain; z-index:0;
+  }
+  #stageCard:fullscreen h2,
+  #stageCard:fullscreen label,
+  #stageCard:fullscreen .stage-hide{ display:none !important; }
+  #stageCard:fullscreen .stage-toolbar{ position:absolute; top:1.5%; right:1.5%; margin:0; z-index:5; }
+  #stageCard:fullscreen .hut-inline{ display:none !important; }
+
+  /* ==== ADJUST DI SINI kalau posisi meleset dari background: ubah top/left/width (dalam %) ==== */
+
+  /* Dropdown pilih hadiah - taruh di area kosong dekat judul */
+  #stageCard:fullscreen select{
+    position:absolute; z-index:5; top:22%; left:34%; width:30%;
+    font-size: clamp(12px,1.3vw,18px); padding: 1%;
+    background: rgba(255,255,255,.9); color:#7a1f1f; border:1px solid #e0a0a0;
+  }
+
+  /* Nama hadiah dinamis - menimpa teks "TIKET DOMESTIK PP ALL ROUTE" di panel kanan */
+  #stageCard:fullscreen .prize-current{
+    position:absolute; z-index:5; top:36%; left:73%; width:24%;
+    font-size: clamp(14px,2vw,26px); font-weight:800; color:#c0392b;
+    background:#fff; padding: 1.5% 1%; border-radius:8px; line-height:1.3;
+  }
+
+  /* Kotak ID - menimpa kotak-kotak outline di tengah background */
+  #stageCard:fullscreen .id-boxes{
+    position:absolute; z-index:5; top:35%; left:22%; width:47%; height:15%;
+    margin:0; gap: 1.1%;
+  }
+  #stageCard:fullscreen .id-box{
+    width: clamp(30px, 5.4%, 90px); height: 78%; font-size: clamp(20px, 4vw, 56px);
+    border:3px solid #f2a7a7; border-radius: 14px; background: rgba(255,255,255,.92); color:#c0392b;
+  }
+  #stageCard:fullscreen .id-box.winner{ border-color:#e63946; color:#c0392b; background:#fff; }
+
+  /* Nama / Cluster / Job pemenang - tampil di ruang kosong bawah kotak ID */
+  #stageCard:fullscreen .name-display,
+  #stageCard:fullscreen .cluster-display,
+  #stageCard:fullscreen .job-display{
+    position:absolute; z-index:5; left:22%; width:47%; text-align:center; margin:0;
+  }
+  #stageCard:fullscreen .name-display{ top:53%; font-size: clamp(18px,3vw,44px); color:#7a1f1f; }
+  #stageCard:fullscreen .cluster-display{ top:63%; font-size: clamp(12px,1.6vw,24px); color:#c0392b; }
+  #stageCard:fullscreen .job-display{ top:69%; font-size: clamp(10px,1.2vw,18px); color:#8a5a5a; }
+
+  /* 3 tombol - ditumpuk transparan pas di atas tombol gambar "Draw / Get Data / Tidak Hadir" */
+  #stageCard:fullscreen .action-row{ display:contents; }
+  #stageCard:fullscreen #drawBtn{
+    position:absolute; z-index:5; top:38%; left:3%; width:15%; height:8%;
+    background:transparent; color:transparent; border:none;
+  }
+  #stageCard:fullscreen #confirmRow{ display:contents !important; }
+  #stageCard:fullscreen #getDataBtn{
+    position:absolute; z-index:5; top:50%; left:3%; width:15%; height:8%;
+    background:transparent; color:transparent; border:none;
+  }
+  #stageCard:fullscreen #tidakHadirBtn{
+    position:absolute; z-index:5; top:62%; left:3%; width:15%; height:8%;
+    background:transparent; color:transparent; border:none;
+  }
+  /* ==== akhir bagian yang bisa di-adjust ==== */
+</style>
+</head>
+<body>
+
+<div class="header-wrap">
+  <h1>🦁✈️ Undian Doorprize</h1>
+  <span class="hut-badge">HUT LION GROUP</span>
+</div>
+<div class="subtitle">Import peserta → Setup hadiah → Kocok undian → Peserta menang otomatis dikeluarkan dari pool</div>
+
+<div class="grid">
+  <!-- LEFT COLUMN -->
+  <div>
+    <!-- STEP 1: IMPORT PESERTA -->
+    <div class="card">
+      <h2><span class="step-badge">1</span> Import Data Peserta</h2>
+      <label>Upload file CSV (kolom: ID, Nama, Cluster Kerja, Job Title — header bebas asal ada kata kuncinya)</label>
+      <input type="file" id="csvFile" accept=".csv,text/csv">
+      <label>Atau paste manual (format: <code>ID,Nama,Cluster Kerja,Job Title</code> per baris)</label>
+      <textarea id="pasteArea" placeholder="10203040,Budi Santoso,Ground Handling,Staff Operasional&#10;10203041,Siti Aminah,Cabin Crew,Flight Attendant"></textarea>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn-secondary" onclick="importFromPaste()">Import dari Paste</button>
+        <button class="btn-secondary" onclick="clearParticipants()">Kosongkan Peserta</button>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><b id="statTotal">0</b><span>Total Peserta</span></div>
+        <div class="stat"><b id="statRemaining">0</b><span>Belum Menang</span></div>
+        <div class="stat"><b id="statWon">0</b><span>Sudah Menang</span></div>
+      </div>
+      <div id="participantPreview" class="small" style="margin-top:8px;"></div>
+    </div>
+
+    <!-- STEP 2: SETUP DOORPRIZE -->
+    <div class="card">
+      <h2><span class="step-badge">2</span> Setup Doorprize</h2>
+      <div class="row">
+        <div>
+          <label>Nama Hadiah</label>
+          <input type="text" id="prizeName" placeholder="Contoh: Smart TV 32 inch">
+        </div>
+        <div style="max-width:100px;">
+          <label>Qty</label>
+          <input type="number" id="prizeQty" min="1" value="1">
+        </div>
+        <div style="flex:0;">
+          <button class="btn-primary" onclick="addPrize()">+ Tambah</button>
+        </div>
+      </div>
+      <table id="prizeTable">
+        <thead><tr><th>Hadiah</th><th>Qty</th><th>Sisa</th><th></th></tr></thead>
+        <tbody id="prizeTableBody"></tbody>
+      </table>
+      <div id="prizeEmpty" class="empty">Belum ada hadiah ditambahkan.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div>
+    <!-- STEP 3: DRAWING -->
+    <div class="card" id="stageCard">
+      <div class="stage-toolbar stage-hide">
+        <button class="btn-stage" onclick="toggleStageFullscreen()" id="stageBtn">🖥️ Mode Panggung (Fullscreen)</button>
+      </div>
+      <h2><span class="step-badge">3</span> Kocok Undian</h2>
+      <div class="stage-inner">
+        <img class="stage-bg-img" id="stageBgImg" src="lucky-draw-bg.png" alt="">
+        <span class="hut-inline">HUT Lion Group</span>
+        <label>Pilih Hadiah yang akan diundi</label>
+        <select id="prizeSelect"></select>
+
+        <div class="draw-stage">
+          <div class="prize-current" id="prizeCurrentLabel">—</div>
+          <div class="id-boxes" id="idBoxes"></div>
+          <div class="name-display" id="nameDisplay">&nbsp;</div>
+          <div class="cluster-display" id="clusterDisplay">&nbsp;</div>
+          <div class="job-display" id="jobDisplay">&nbsp;</div>
+          <div class="action-row">
+            <button class="btn-primary" id="drawBtn" onclick="startDraw()">🎲 KOCOK / UNDI</button>
+          </div>
+          <div class="action-row" id="confirmRow" style="display:none;">
+            <button class="btn-success" id="getDataBtn" onclick="confirmWinner()">✅ Menang — Ambil Data</button>
+            <button class="btn-danger" id="tidakHadirBtn" onclick="redrawAbsent()">🚫 Tidak Hadir — Undi Ulang</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: DAFTAR PEMENANG -->
+    <div class="card">
+      <div class="flex-between">
+        <h2 style="margin:0;"><span class="step-badge">4</span> Daftar Pemenang</h2>
+        <button class="btn-secondary" onclick="exportWinners()">⬇ Export CSV</button>
+      </div>
+      <table id="winnerTable">
+        <thead><tr><th>ID</th><th>Nama</th><th>Cluster Kerja</th><th>Job Title</th><th>Hadiah</th><th>Waktu</th></tr></thead>
+        <tbody id="winnerTableBody"></tbody>
+      </table>
+      <div id="winnerEmpty" class="empty">Belum ada pemenang.</div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPROVEMENT SUGGESTIONS -->
+<div class="card">
+  <h2>💡 Saran Improvisasi untuk Undian Doorprize</h2>
+  <ul class="tips">
+    <li><b>Musik &amp; sound effect drum-roll:</b> tambahkan sound saat mengocok dan sound "menang" saat berhenti — bikin momen lebih heboh di panggung.</li>
+    <li><b>Animasi confetti</b> berwarna merah-emas (sesuai identitas Lion Group) saat pemenang muncul.</li>
+    <li><b>Filter peserta per Cluster Kerja:</b> hadiah tertentu bisa diundi khusus dari cluster tertentu saja (misal hadiah khusus Cabin Crew).</li>
+    <li><b>Proteksi anti-curang:</b> kunci daftar peserta setelah import (read-only) supaya tidak ada yang menambah/menghapus data saat acara berlangsung.</li>
+    <li><b>Log transparansi undian:</b> simpan histori lengkap urutan kocokan supaya bisa diaudit kalau ada yang bertanya.</li>
+    <li><b>Cetak e-sertifikat/voucher otomatis</b> begitu pemenang dikonfirmasi (bisa export ke PDF berlogo HUT Lion Group).</li>
+    <li><b>Statistik akhir acara:</b> total hadiah terdistribusi vs sisa, partisipasi per cluster — bagus untuk laporan ke management.</li>
+    <li><b>Backup data periodik</b> (auto-save ke file) supaya kalau browser crash, data peserta &amp; histori pemenang tidak hilang.</li>
+    <li><b>Grand prize di akhir:</b> urutkan hadiah dari nilai terkecil ke terbesar supaya antusiasme naik menjelang penutupan.</li>
+  </ul>
+</div>
+
+<div class="footer-note">Semua data hanya tersimpan selama sesi browser ini (tidak dikirim ke server manapun). Refresh halaman akan mengosongkan data. Selamat HUT Lion Group! 🦁</div>
+
+<script>
+let participants = []; // {id, name, cluster, jobTitle, won}
+let prizes = []; // {name, qty, wonCount, id}
+let winners = []; // {id, name, cluster, jobTitle, prizeName, time}
+let prizeIdCounter = 1;
+let drawing = false;
+let currentDrawnParticipant = null;
+let currentPrizeId = null;
+let drawInterval = null;
+
+// ---------- UTIL ----------
+function cleanId(v){ return String(v).replace(/\D/g,''); }
+
+function refreshStats(){
+  const total = participants.length;
+  const won = participants.filter(p=>p.won).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statWon').textContent = won;
+  document.getElementById('statRemaining').textContent = total - won;
+}
+
+function renderParticipantPreview(){
+  const el = document.getElementById('participantPreview');
+  if(participants.length === 0){ el.textContent = ''; return; }
+  const sample = participants.slice(0,3).map(p=>`${p.id} - ${p.name} (${p.cluster || '-'})`).join(' | ');
+  el.textContent = `Contoh data: ${sample}${participants.length>3 ? ' ...' : ''}`;
+}
+
+// ---------- STEP 1: IMPORT PESERTA ----------
+function parseCSVText(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>0);
+  if(lines.length === 0) return [];
+
+  let startIdx = 0;
+  let idCol = 0, nameCol = 1, clusterCol = 2, jobCol = 3;
+  const firstCols = lines[0].split(',').map(c=>c.trim().toLowerCase());
+  const looksLikeHeader =
+    firstCols.some(c=>c.includes('id')) ||
+    firstCols.some(c=>c.includes('nama')) ||
+    firstCols.some(c=>c.includes('name')) ||
+    firstCols.some(c=>c.includes('cluster')) ||
+    firstCols.some(c=>c.includes('job'));
+
+  if(looksLikeHeader){
+    startIdx = 1;
+    const idIdx = firstCols.findIndex(c=>c.includes('id'));
+    const nameIdx = firstCols.findIndex(c=>c.includes('nama') || c.includes('name'));
+    const clusterIdx = firstCols.findIndex(c=>c.includes('cluster') || c.includes('divisi') || c.includes('departemen') || c.includes('unit'));
+    const jobIdx = firstCols.findIndex(c=>c.includes('job') || c.includes('jabatan') || c.includes('posisi') || c.includes('title'));
+    if(idIdx >= 0) idCol = idIdx;
+    if(nameIdx >= 0) nameCol = nameIdx;
+    if(clusterIdx >= 0) clusterCol = clusterIdx;
+    if(jobIdx >= 0) jobCol = jobIdx;
+  }
+
+  const result = [];
+  for(let i=startIdx; i<lines.length; i++){
+    const cols = lines[i].split(',').map(c=>c.trim());
+    if(cols.length < 2) continue;
+    const rawId = cols[idCol] || '';
+    const name = cols[nameCol] || '(Tanpa Nama)';
+    const cluster = cols[clusterCol] || '-';
+    const jobTitle = cols[jobCol] || '-';
+    if(!rawId) continue;
+    result.push({ id: cleanId(rawId), name, cluster, jobTitle, won:false });
+  }
+  return result;
+}
+
+function mergeParticipants(newOnes){
+  const existingIds = new Set(participants.map(p=>p.id));
+  let added = 0, skipped = 0;
+  newOnes.forEach(p=>{
+    if(existingIds.has(p.id)){ skipped++; return; }
+    existingIds.add(p.id);
+    participants.push(p);
+    added++;
+  });
+  refreshStats();
+  renderParticipantPreview();
+  populatePrizeSelect();
+  alert(`Import selesai. ${added} peserta ditambahkan${skipped? `, ${skipped} duplikat dilewati`:''}.`);
+}
+
+document.getElementById('csvFile').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    const parsed = parseCSVText(evt.target.result);
+    mergeParticipants(parsed);
+  };
+  reader.readAsText(file);
+});
+
+function importFromPaste(){
+  const text = document.getElementById('pasteArea').value;
+  if(!text.trim()){ alert('Textarea masih kosong.'); return; }
+  const parsed = parseCSVText(text);
+  mergeParticipants(parsed);
+  document.getElementById('pasteArea').value = '';
+}
+
+function clearParticipants(){
+  if(participants.length === 0) return;
+  if(!confirm('Yakin ingin mengosongkan seluruh data peserta?')) return;
+  participants = [];
+  refreshStats();
+  renderParticipantPreview();
+  populatePrizeSelect();
+}
+
+// ---------- STEP 2: SETUP DOORPRIZE ----------
+function addPrize(){
+  const name = document.getElementById('prizeName').value.trim();
+  const qty = parseInt(document.getElementById('prizeQty').value, 10) || 1;
+  if(!name){ alert('Nama hadiah wajib diisi.'); return; }
+  prizes.push({ id: prizeIdCounter++, name, qty, wonCount: 0 });
+  document.getElementById('prizeName').value = '';
+  document.getElementById('prizeQty').value = 1;
+  renderPrizeTable();
+  populatePrizeSelect();
+}
+
+function deletePrize(id){
+  prizes = prizes.filter(p=>p.id !== id);
+  renderPrizeTable();
+  populatePrizeSelect();
+}
+
+function renderPrizeTable(){
+  const body = document.getElementById('prizeTableBody');
+  body.innerHTML = '';
+  document.getElementById('prizeEmpty').style.display = prizes.length ? 'none' : 'block';
+  prizes.forEach(p=>{
+    const sisa = p.qty - p.wonCount;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.name}</td><td>${p.qty}</td>
+      <td><span class="pill ${sisa>0 ? 'pill-warn':'pill-ok'}">${sisa}</span></td>
+      <td><span class="tag-del" onclick="deletePrize(${p.id})">Hapus</span></td>`;
+    body.appendChild(tr);
+  });
+}
+
+function populatePrizeSelect(){
+  const sel = document.getElementById('prizeSelect');
+  const prevVal = sel.value;
+  sel.innerHTML = '';
+  const available = prizes.filter(p => (p.qty - p.wonCount) > 0);
+  if(available.length === 0){
+    sel.innerHTML = '<option value="">-- Tidak ada hadiah tersisa --</option>';
+    document.getElementById('drawBtn').disabled = true;
+    return;
+  }
+  available.forEach(p=>{
+    const sisa = p.qty - p.wonCount;
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name} (sisa ${sisa}/${p.qty})`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('drawBtn').disabled = false;
+  if(prevVal && available.some(p=>String(p.id) === prevVal)) sel.value = prevVal;
+}
+
+// ---------- STEP 3: DRAWING ----------
+// Render ID sebagai kotak per-digit. Jumlah kotak MENYESUAIKAN panjang ID asli
+// (bisa 6 digit, bisa 8 digit, atau panjang lain) - tidak dipaksa 8.
+function renderIdBoxes(idString, isWinner){
+  const container = document.getElementById('idBoxes');
+  container.innerHTML = '';
+  String(idString).split('').forEach(ch=>{
+    const box = document.createElement('div');
+    box.className = 'id-box' + (isWinner ? ' winner' : '');
+    box.textContent = ch;
+    container.appendChild(box);
+  });
+}
+
+function startDraw(){
+  if(drawing) return;
+  const prizeId = parseInt(document.getElementById('prizeSelect').value, 10);
+  if(!prizeId){ alert('Pilih hadiah dulu.'); return; }
+  const pool = participants.filter(p=>!p.won);
+  if(pool.length === 0){ alert('Tidak ada peserta tersisa untuk diundi.'); return; }
+
+  currentPrizeId = prizeId;
+  const prize = prizes.find(p=>p.id === prizeId);
+  document.getElementById('prizeCurrentLabel').textContent = `Mengundi: ${prize.name}`;
+  document.getElementById('confirmRow').style.display = 'none';
+  document.getElementById('drawBtn').disabled = true;
+  drawing = true;
+
+  const nameEl = document.getElementById('nameDisplay');
+  const clusterEl = document.getElementById('clusterDisplay');
+  const jobEl = document.getElementById('jobDisplay');
+  nameEl.textContent = '\u00A0';
+  clusterEl.textContent = '\u00A0';
+  jobEl.textContent = '\u00A0';
+
+  let ticks = 0;
+  const maxTicks = 24 + Math.floor(Math.random()*10);
+  drawInterval = setInterval(()=>{
+    const randP = pool[Math.floor(Math.random()*pool.length)];
+    renderIdBoxes(randP.id, false);
+    ticks++;
+    if(ticks >= maxTicks){
+      clearInterval(drawInterval);
+      finalizeDrawPick(pool, nameEl, clusterEl, jobEl);
+    }
+  }, 70);
+}
+
+function finalizeDrawPick(pool, nameEl, clusterEl, jobEl){
+  const winnerP = pool[Math.floor(Math.random()*pool.length)];
+  currentDrawnParticipant = winnerP;
+  renderIdBoxes(winnerP.id, true);
+  nameEl.textContent = winnerP.name;
+  clusterEl.textContent = `Cluster Kerja: ${winnerP.cluster || '-'}`;
+  jobEl.textContent = `Job Title: ${winnerP.jobTitle || '-'}`;
+  document.getElementById('confirmRow').style.display = 'flex';
+  document.getElementById('drawBtn').disabled = false;
+  drawing = false;
+}
+
+function confirmWinner(){
+  if(!currentDrawnParticipant || !currentPrizeId) return;
+  const prize = prizes.find(p=>p.id === currentPrizeId);
+  if(!prize){ alert('Hadiah tidak ditemukan.'); return; }
+  if(prize.wonCount >= prize.qty){ alert('Kuota hadiah ini sudah penuh.'); return; }
+
+  // take out participant from pool
+  currentDrawnParticipant.won = true;
+  prize.wonCount += 1;
+
+  winners.push({
+    id: currentDrawnParticipant.id,
+    name: currentDrawnParticipant.name,
+    cluster: currentDrawnParticipant.cluster || '-',
+    jobTitle: currentDrawnParticipant.jobTitle || '-',
+    prizeName: prize.name,
+    time: new Date().toLocaleString('id-ID')
+  });
+
+  renderWinnerTable();
+  renderPrizeTable();
+  populatePrizeSelect();
+  refreshStats();
+
+  document.getElementById('confirmRow').style.display = 'none';
+  document.getElementById('prizeCurrentLabel').textContent = '—';
+  document.getElementById('nameDisplay').textContent = '\u00A0';
+  document.getElementById('clusterDisplay').textContent = '\u00A0';
+  document.getElementById('jobDisplay').textContent = '\u00A0';
+  currentDrawnParticipant = null;
+  currentPrizeId = null;
+}
+
+function redrawAbsent(){
+  // participant not present: do NOT mark as won, just discard this pick and let admin draw again
+  document.getElementById('confirmRow').style.display = 'none';
+  currentDrawnParticipant = null;
+  document.getElementById('nameDisplay').textContent = '\u00A0';
+  document.getElementById('clusterDisplay').textContent = '\u00A0';
+  document.getElementById('jobDisplay').textContent = '\u00A0';
+}
+
+function renderWinnerTable(){
+  const body = document.getElementById('winnerTableBody');
+  body.innerHTML = '';
+  document.getElementById('winnerEmpty').style.display = winners.length ? 'none' : 'block';
+  winners.slice().reverse().forEach(w=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${w.id}</td><td>${w.name}</td><td>${w.cluster}</td><td>${w.jobTitle}</td><td>${w.prizeName}</td><td>${w.time}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+function exportWinners(){
+  if(winners.length === 0){ alert('Belum ada pemenang untuk diexport.'); return; }
+  let csv = 'ID,Nama,Cluster Kerja,Job Title,Hadiah,Waktu\n';
+  winners.forEach(w=>{
+    csv += `${w.id},"${w.name}","${w.cluster}","${w.jobTitle}",${w.prizeName},${w.time}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pemenang_doorprize_hut_lion_group.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---------- FULLSCREEN STAGE MODE ----------
+function toggleStageFullscreen(){
+  const el = document.getElementById('stageCard');
+  if(!document.fullscreenElement){
+    el.requestFullscreen().catch(err=>alert('Gagal masuk fullscreen: ' + err.message));
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.addEventListener('fullscreenchange', ()=>{
+  const btn = document.getElementById('stageBtn');
+  if(document.fullscreenElement){
+    btn.textContent = '↩ Keluar Mode Panggung (ESC)';
+  } else {
+    btn.textContent = '🖥️ Mode Panggung (Fullscreen)';
+  }
+});
+
+// init
+refreshStats();
+renderPrizeTable();
+populatePrizeSelect();
+renderWinnerTable();
+renderIdBoxes('--------', false);
+</script>
+</body>
+</html>
